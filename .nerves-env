@@ -1,0 +1,2 @@
+export MIX_HOME="$PWD/.nerves_home/mix"
+export HEX_HOME="$PWD/.nerves_home/hex"
