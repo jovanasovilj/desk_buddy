@@ -18,6 +18,10 @@ config :nerves, :firmware, rootfs_overlay: "rootfs_overlay"
 
 config :nerves, source_date_epoch: "1765978504"
 
+config :nerves, :rpi,
+  # Ensure the SPI overlay is loaded by the Linux kernel
+  dt_overlays: [:spi, :"spi0-1cs"]
+
 if Mix.target() == :host do
   import_config "host.exs"
 else

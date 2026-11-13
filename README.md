@@ -1,33 +1,83 @@
-# DeskBuddy
+# Desk Buddy
 
-**TODO: Add description**
+A small desk pet that lives on a Raspberry Pi Zero 2 W. It is built with
+[Nerves](https://nerves-project.org) and written in Elixir, including the
+driver for its screen.
 
-## Targets
+Desk Buddy has a mood that changes over time. Its energy and attention go down
+slowly, so it needs you to play with it or let it rest. The screen shows its
+mood as a colour.
 
-Nerves applications produce images for hardware targets based on the
-`MIX_TARGET` environment variable. If `MIX_TARGET` is unset, `mix` builds an
-image that runs on the host (e.g., your laptop). This is useful for executing
-logic tests, running utilities, and debugging. Other targets are represented by
-a short name like `rpi3` that maps to a Nerves system image for that platform.
-All of this logic is in the generated `mix.exs` and may be customized. For more
-information about targets see:
+**Status:** work in progress. The mood is shown as a full screen colour for
+now. Faces and simple animations are next.
 
-https://hexdocs.pm/nerves/supported-targets.html
+## Hardware
 
-## Getting Started
+- Raspberry Pi Zero 2 W
+- Waveshare 1.3 inch LCD HAT (ST7789 controller, 240x240 pixels, SPI)
 
-To start your Nerves app:
-  * `export MIX_TARGET=my_target` or prefix every command with
-    `MIX_TARGET=my_target`. For example, `MIX_TARGET=rpi3`
-  * Install dependencies with `mix deps.get`
-  * Create firmware with `mix firmware`
-  * Burn to an SD card with `mix burn`
+## How it works
 
-## Learn more
+The application starts three supervised GenServers.
 
-  * Official docs: https://hexdocs.pm/nerves/getting-started.html
-  * Official website: https://nerves-project.org/
-  * Forum: https://elixirforum.com/c/nerves-forum
-  * Elixir Slack #nerves channel: https://elixir-slack.community/
-  * Elixir Discord #nerves channel: https://discord.gg/elixir
-  * Source: https://github.com/nerves-project/nerves
+- `DeskBuddy.Display` talks to the ST7789 panel over SPI and GPIO. It resets
+  and sets up the panel and fills the screen with RGB565 pixels, sent in
+  chunks of 4 KB.
+- `DeskBuddy.State` keeps the mood, energy and attention. Every 3 seconds a
+  tick lowers energy and attention. When the mood changes, it updates the
+  screen.
+- `DeskBuddy.Buttons` listens for button presses through GPIO interrupts.
+
+### Moods
+
+| Mood   | Colour | When                                    |
+|--------|--------|-----------------------------------------|
+| happy  | green  | energy and attention are fine           |
+| bored  | yellow | attention drops below 20                |
+| sleepy | blue   | energy drops below 5                    |
+| grumpy | red    | the normal mood of a grumpy personality |
+
+### Buttons
+
+| Button | GPIO | Action                         |
+|--------|------|--------------------------------|
+| KEY1   | 21   | play: attention +15, energy +5 |
+| KEY2   | 20   | rest: energy +20, attention -5 |
+| KEY3   | 16   | play, same as KEY1             |
+
+### Personality
+
+A buddy can be `chill`, `needy` or `grumpy`. A needy buddy gets bored faster
+and a grumpy one is red when nothing is wrong. Change it from an IEx session on
+the device:
+
+```elixir
+DeskBuddy.State.set_personality(:needy)
+```
+
+## Build and flash
+
+`.nerves-env` keeps the Mix and Hex files inside the project folder.
+
+```sh
+source .nerves-env
+export MIX_TARGET=rpi0_2
+mix deps.get
+mix firmware
+
+# First time: write the firmware to an SD card
+mix burn
+
+# Later updates over the network
+./upload.sh
+```
+
+Once it is running, `ssh nerves.local` opens an IEx prompt on the device.
+
+## Ideas
+
+- Faces and simple animations instead of plain colours
+- Let the buddy talk: ask an LLM for a short line that fits its mood and show
+  it on the screen
+- Use the joystick on the HAT
+- Remember the mood across reboots

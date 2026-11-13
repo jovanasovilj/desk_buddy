@@ -49,6 +49,7 @@ defmodule DeskBuddy.MixProject do
       # changes to your application are needed.
       {:nerves_system_rpi0_2, "~> 1.31", runtime: false, targets: :rpi0_2},
       {:circuits_gpio, "~> 2.0"},
+      {:circuits_spi, "~> 2.0"},
       {:jason, "~> 1.4"}
     ]
   end

@@ -1,18 +1,8 @@
 defmodule DeskBuddy do
   @moduledoc """
-  Documentation for `DeskBuddy`.
+  A small desk pet for a Raspberry Pi Zero 2 W with a Waveshare 1.3 inch LCD HAT.
+
+  See `DeskBuddy.State` for the mood logic, `DeskBuddy.Display` for the screen
+  driver and `DeskBuddy.Buttons` for the button handling.
   """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> DeskBuddy.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end

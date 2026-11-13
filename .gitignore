@@ -15,3 +15,6 @@ erl_crash.dump
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Local Mix and Hex home set by .nerves-env.
+/.nerves_home/

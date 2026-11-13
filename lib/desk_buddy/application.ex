@@ -9,7 +9,7 @@ defmodule DeskBuddy.Application do
   def start(_type, _args) do
     children =
       [
-        DeskBuddy.Render,
+        DeskBuddy.Display,
         DeskBuddy.State,
         DeskBuddy.Buttons
       ] ++ target_children()
